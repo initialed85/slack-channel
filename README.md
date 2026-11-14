@@ -51,11 +51,8 @@ The installer clones/updates into `~/.local/share/slack-channel`, builds the bin
 you can edit, and installs a background service (launchd on macOS, a `systemd --user` unit on Linux).
 
 - **Install the binary only, no service:** `... | bash -s -- --no-service` (or `NO_SERVICE=1`).
-- **While this repo is private**, the raw-URL one-liner needs auth. Easiest is to clone with the
-  GitHub CLI and run the installer locally — it detects `gh` and will clone private repos:
-  ```sh
-  gh repo clone initialed85/slack-channel && cd slack-channel && ./install.sh
-  ```
+- **Prefer to clone first?** `git clone https://github.com/initialed85/slack-channel && cd slack-channel && ./install.sh`
+  (or `gh repo clone initialed85/slack-channel`).
 
 Installer knobs (env vars): `SLACK_CHANNEL_DIR`, `SLACK_CHANNEL_LABEL`, `SLACK_CHANNEL_REF`,
 `SLACK_CHANNEL_REPO`, `NO_SERVICE`.
