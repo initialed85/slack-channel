@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Start a Claude Code session that receives your "@claude" Slack messages over the MCP "channel"
+# capability (this needs channelsEnabled for your org; most orgs block it, in which case use the
+# daemon instead — see the README). Run it from whichever repo the work is in. Extra args pass
+# through to claude (e.g. --continue, --model ...).
+set -euo pipefail
+here="$(cd "$(dirname "$0")" && pwd)"
+(cd "$here/go" && go build -o bin/slack-channel ./cmd/slack-channel)
+cfg="$here/mcp.slack.local.json"
+sed "s#REPLACE_WITH_ABSOLUTE_PATH#$here#g" "$here/mcp.slack.json.example" > "$cfg"
+exec claude --mcp-config "$cfg" --dangerously-load-development-channels server:slack "$@"

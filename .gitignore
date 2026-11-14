@@ -1,0 +1,6 @@
+# built binary
+go/bin/
+# local config (contains your workspace + optionally a Slack cookie)
+.env
+# state/logs, if someone points the state dir into the repo
+*.log

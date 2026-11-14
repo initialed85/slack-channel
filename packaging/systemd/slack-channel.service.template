@@ -1,0 +1,14 @@
+[Unit]
+Description=slack-channel bridge (Slack <-> Claude Code)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=__BIN__ daemon
+Environment=SLACK_CHANNEL_ENV_FILE=__ENV_FILE__
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=default.target

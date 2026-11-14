@@ -1,0 +1,5 @@
+{
+  "mcpServers": {
+    "slack": { "command": "REPLACE_WITH_ABSOLUTE_PATH/go/bin/slack-channel" }
+  }
+}
