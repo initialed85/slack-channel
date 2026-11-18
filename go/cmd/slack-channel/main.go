@@ -129,7 +129,10 @@ func main() {
 		peerLast:      map[string]time.Time{},
 		contextN:      contextN,
 		filesDir:      filesDir,
+		seenLog:       newSeenLog(stateDir),
+		sweepNow:      make(chan struct{}, 1),
 	}
+	b.seenLog.load(b)
 
 	for _, id := range strings.Split(env("SLACK_PEER_USERS", defaultPeers), ",") {
 		if id = strings.TrimSpace(id); id != "" {
@@ -203,7 +206,7 @@ func detectWorkspace() string {
 }
 
 func runCLI(b *bridge, cmd string, args []string) error {
-	need := map[string]int{"ack": 2, "say": 2, "react": 3, "read": 2, "upload": 3, "members": 1}
+	need := map[string]int{"ack": 2, "say": 2, "react": 3, "read": 2, "upload": 3, "members": 1, "sweep": 0}
 	n, ok := need[cmd]
 	if !ok {
 		return fmt.Errorf("unknown command %q (want daemon, ack, say, react, read, or none for MCP)", cmd)
@@ -212,6 +215,15 @@ func runCLI(b *bridge, cmd string, args []string) error {
 		return fmt.Errorf("%s needs %d args", cmd, n)
 	}
 	if err := b.login(); err != nil {
+		return err
+	}
+	if cmd == "sweep" {
+		// dry run: what the catch-up sweep would see, and whether each is already handled
+		events, err := b.sweepCandidates(sweepWindow)
+		for _, e := range events {
+			_, done := b.seen.Load(e.Channel + "/" + e.Timestamp)
+			fmt.Printf("%s\t%s/%s\tthread=%s\thandled=%v\t%.60q\n", slackTime(e.Timestamp).Local().Format("Mon 15:04"), e.Channel, e.Timestamp, e.ThreadTimestamp, done, e.Text)
+		}
 		return err
 	}
 	if cmd == "members" {

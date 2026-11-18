@@ -20,6 +20,12 @@ work to your local agent from your phone, or from Slack, without a Slack app or 
 - **Delivery into Claude Code.** The daemon hands each request to a running interactive Claude Code
   session over its local messaging socket (the same mechanism Claude Code uses between local
   sessions). Requests are queued to an inbox dir and delivered as soon as a matching session is up.
+- **Nothing lost to a dropped socket.** Slack's realtime socket drops now and then and never replays
+  what was said while it was down. So every minute, and right after each reconnect, the daemon also
+  searches Slack for recent tags and delivers any it missed (search lags by up to a minute). Handled
+  messages are recorded in `seen.log` in the state dir so a restart doesn't re-deliver them, and a
+  request that arrives more than a couple of minutes late says so, so the session doesn't treat an old
+  "now" as current. `slack-channel sweep` shows what the sweep currently sees.
 - **Two run modes:**
   - **daemon** (recommended, default for the installer): a background process listens to Slack and
     delivers into your session. Works on any org.
