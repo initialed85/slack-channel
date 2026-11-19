@@ -63,7 +63,9 @@ func (b *bridge) pumpInbox(dir string) {
 				continue
 			}
 			logf("delivered %s to session %s (pid %d)", name, sess.Name, sess.PID)
-			if b.client() != nil {
+			// no ack for an untagged follow-up (it may not have been for Claude) or for reactions (an ack there is a
+			// reaction on Claude's own message, which would come straight back as another delivery)
+			if b.client() != nil && meta["kind"] == "" {
 				if err := b.ack(meta["channel"], meta["ts"], meta["thread_ts"]); err != nil {
 					logf("ack: %v", err)
 				}

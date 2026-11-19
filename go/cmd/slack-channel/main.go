@@ -151,6 +151,8 @@ func main() {
 		// how long after Claude's last reply in a thread your untagged messages there still reach it; 0 turns it off
 		followTTL:         envDuration("SLACK_FOLLOW_THREADS", 12*time.Hour),
 		markRepliesUnread: env("SLACK_MARK_UNREAD", "1") != "0",
+		// how long to gather reactions on one of Claude's messages before passing them on; 0 turns it off
+		reactionDelay: envDuration("SLACK_REACTIONS", time.Minute),
 	}
 	b.seenLog.load(b)
 
