@@ -33,6 +33,22 @@ var logger *log.Logger
 
 func logf(format string, args ...any) { logger.Printf(format, args...) }
 
+func envDuration(k string, def time.Duration) time.Duration {
+	v := os.Getenv(k)
+	if v == "" {
+		return def
+	}
+	if v == "0" {
+		return 0
+	}
+	d, err := time.ParseDuration(v)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s=%q isn't a duration (e.g. 12h); using %s\n", k, v, def)
+		return def
+	}
+	return d
+}
+
 func env(k, def string) string {
 	if v, ok := os.LookupEnv(k); ok {
 		return v
@@ -131,6 +147,10 @@ func main() {
 		filesDir:      filesDir,
 		seenLog:       newSeenLog(stateDir),
 		sweepNow:      make(chan struct{}, 1),
+		engaged:       newEngagedLog(stateDir),
+		// how long after Claude's last reply in a thread your untagged messages there still reach it; 0 turns it off
+		followTTL:         envDuration("SLACK_FOLLOW_THREADS", 12*time.Hour),
+		markRepliesUnread: env("SLACK_MARK_UNREAD", "1") != "0",
 	}
 	b.seenLog.load(b)
 
