@@ -143,6 +143,7 @@ func (b *bridge) sweep() {
 	}
 	for _, e := range events {
 		if _, done := b.seen.Load(e.Channel + "/" + e.Timestamp); done {
+			b.sweepEdits(e) // already delivered; but edited since?
 			continue
 		}
 		b.onMessage(e, "sweep")

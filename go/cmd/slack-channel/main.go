@@ -228,10 +228,10 @@ func detectWorkspace() string {
 }
 
 func runCLI(b *bridge, cmd string, args []string) error {
-	need := map[string]int{"ack": 2, "say": 2, "react": 3, "read": 2, "upload": 3, "members": 1, "sweep": 0}
+	need := map[string]int{"ack": 2, "say": 2, "react": 3, "read": 2, "history": 1, "upload": 3, "members": 1, "sweep": 0}
 	n, ok := need[cmd]
 	if !ok {
-		return fmt.Errorf("unknown command %q (want daemon, ack, say, react, read, or none for MCP)", cmd)
+		return fmt.Errorf("unknown command %q (want daemon, ack, say, react, read, history, upload, members, sweep, or none for MCP)", cmd)
 	}
 	if len(args) < n {
 		return fmt.Errorf("%s needs %d args", cmd, n)
@@ -254,6 +254,16 @@ func runCLI(b *bridge, cmd string, args []string) error {
 		for _, id := range ids {
 			fmt.Printf("%s\t%s\n", id, b.userName(id))
 		}
+		return err
+	}
+	if cmd == "history" {
+		// a channel's latest messages, oldest first, rendered like read
+		limit := 50
+		if len(args) > 1 {
+			limit, _ = strconv.Atoi(args[1])
+		}
+		out, err := b.transcript(args[0], "", "", max(limit, 1))
+		fmt.Print(out)
 		return err
 	}
 	ch, ts := args[0], args[1]

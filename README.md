@@ -26,6 +26,10 @@ work to your local agent from your phone, or from Slack, without a Slack app or 
   messages are recorded in `seen.log` in the state dir so a restart doesn't re-deliver them, and a
   request that arrives more than a couple of minutes late says so, so the session doesn't treat an old
   "now" as current. `slack-channel sweep` shows what the sweep currently sees.
+- **Edits follow the message.** Edit a message Claude already has, and the session gets the edit in the
+  same thread (`edited: <old> → <new>`), however small: one character can change the meaning. Each edit
+  is delivered once, even when both the socket and the sweep see it. Editing `@claude` into a message
+  Claude never had wakes it as usual.
 - **Two run modes:**
   - **daemon** (recommended, default for the installer): a background process listens to Slack and
     delivers into your session. Works on any org.
@@ -105,9 +109,10 @@ Find a channel's member IDs (handy for `SLACK_PEER_USERS`):
 The CLI the daemon uses is also usable by hand:
 
 ```
-slack-channel say   <channel> <thread_ts>   # reply text on stdin; empty thread_ts posts top-level
+slack-channel say   <channel> <thread_ts>   # reply text on stdin (a leading ":robot_face: *Claude:*" is dropped, it's added for you); empty thread_ts posts top-level
 slack-channel react <channel> <ts> <emoji>
 slack-channel read  <channel> <ts> [limit]
+slack-channel history <channel> [limit]     # a channel's latest messages, oldest first
 slack-channel upload <channel> <thread_ts> <file> [comment]
 slack-channel members <channel>
 slack-channel daemon                         # run the listener in the foreground
