@@ -24,10 +24,11 @@ func TestFollowUp(t *testing.T) {
 	}
 	b.engaged.touch("C1", "1.1")
 	cases := map[string]bool{
-		"yep change to all zeros":          true,
-		"<@UME> note to self":              true,
-		"<@UIZZY> what do you reckon?":     false, // addressed to a person
-		replyPrefix + "Claude's own reply": false,
+		"yep change to all zeros":                           true,
+		"<@UME> note to self":                               true,
+		"<@UIZZY> what do you reckon?":                      true, // yours, so delivered; the session decides if it's for it
+		"fix it then get <@UBOT> to chide whoever broke it": true,
+		replyPrefix + "Claude's own reply":                  false,
 	}
 	for text, want := range cases {
 		if got := b.followUp("C1", "1.1", text); got != want {

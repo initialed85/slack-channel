@@ -16,8 +16,9 @@ import (
 
 // Thread follow: once Claude has replied in a thread, your later messages in that thread reach it without the
 // trigger, for followTTL after Claude's last reply there. It only follows *your* messages (colleagues still go through
-// the peer convention), and skips any of yours that @mention someone else, since those are addressed to a person.
-// Anything else that arrives this way is flagged as untagged, and the session is told it may be chatter and to stay
+// the peer convention), all of them, including ones that @mention someone else: "fix it and get @someone to look"
+// is for Claude even though it names a person, and dropping it silently was worse than a turn spent on chatter.
+// Everything that arrives this way is flagged as untagged, and the session is told it may be chatter and to stay
 // silent unless it's plainly for it, so a follow-up that wasn't meant for Claude costs one short turn and no reply.
 //
 // The record of engaged threads is a small append-only file in the state dir, because `say` runs as its own process
@@ -87,11 +88,6 @@ func (l *engagedLog) lastReply(channel, threadTS string) time.Time {
 func (b *bridge) followUp(channel, threadTS, text string) bool {
 	if b.followTTL <= 0 || threadTS == "" || strings.HasPrefix(text, replyPrefix) {
 		return false
-	}
-	for _, m := range mentionRe.FindAllStringSubmatch(text, -1) {
-		if m[1] != b.selfID {
-			return false // addressed to a person
-		}
 	}
 	last := b.engaged.lastReply(channel, threadTS)
 	return !last.IsZero() && time.Since(last) < b.followTTL

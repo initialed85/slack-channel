@@ -80,7 +80,7 @@ every option is documented there. The ones you're most likely to touch:
 | `SLACK_PEER_USERS` | *(empty)* | Comma-separated Slack user IDs allowed to wake your Claude via `@<you>'s claude`. |
 | `SLACK_D_COOKIE` | *(unset)* | Supply the Slack cookie directly instead of reading the browser (required on Linux). |
 | `SLACK_COOKIE_KEYCHAIN_SERVICE` | `Chrome Safe Storage` | Keychain entry to decrypt the cookie (e.g. `Slack Safe Storage`, `Brave Safe Storage`). |
-| `SLACK_FOLLOW_THREADS` | `12h` | Once Claude has replied in a thread, your later messages there reach it without `@claude`, for this long after its last reply. Only your own messages, and not ones that @mention someone else; Claude is told they're untagged and stays quiet if they aren't for it. `0` turns it off. |
+| `SLACK_FOLLOW_THREADS` | `12h` | Once Claude has replied in a thread, your later messages there reach it without `@claude`, for this long after its last reply. Only your own messages (all of them, even ones that @mention someone else); Claude is told they're untagged and stays quiet if they aren't for it. `0` turns it off. |
 | `SLACK_MARK_UNREAD` | `1` | Mark Claude's replies unread for you (Slack otherwise treats them as read, since they're posted as you). `0` turns it off. |
 | `SLACK_REACTIONS` | `1m` | Reactions on Claude's own messages are passed to it as context ("the joke landed"), not as requests, batched per message over this window so a pile-on costs one delivery. `0` turns it off. |
 
