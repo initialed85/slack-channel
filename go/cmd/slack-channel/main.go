@@ -153,6 +153,11 @@ func main() {
 		markRepliesUnread: env("SLACK_MARK_UNREAD", "1") != "0",
 		// how long to gather reactions on one of Claude's messages before passing them on; 0 turns it off
 		reactionDelay: envDuration("SLACK_REACTIONS", time.Minute),
+		// your reaction that means "look into this and tell me privately"; the report goes to SLACK_LOOK_CHANNEL
+		// (a DM), in SLACK_LOOK_THREAD if set. No channel turns it off.
+		lookReaction: env("SLACK_LOOK_REACTION", "thinking_face"),
+		lookChannel:  env("SLACK_LOOK_CHANNEL", ""),
+		lookThread:   env("SLACK_LOOK_THREAD", ""),
 	}
 	b.seenLog.load(b)
 

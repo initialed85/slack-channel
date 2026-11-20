@@ -57,6 +57,11 @@ type bridge struct {
 	reactions     reactionBatcher
 	reactionDelay time.Duration
 
+	// your "look into this" reaction (look.go): put it on any message and Claude reports back privately
+	lookReaction string
+	lookChannel  string
+	lookThread   string
+
 	names sync.Map // user ID -> display name
 	seen  sync.Map // channel/ts we've already acted on
 

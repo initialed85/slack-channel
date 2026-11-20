@@ -26,6 +26,10 @@ type reactionBatcher struct {
 }
 
 func (b *bridge) onReaction(e *slack.ReactionAddedEvent) {
+	if b.isLook(e) {
+		go b.dispatchLook(e.Item.Channel, e.Item.Timestamp)
+		return
+	}
 	if b.reactionDelay <= 0 || e.Item.Type != "message" || e.ItemUser != b.selfID {
 		return // Claude posts as you, so its messages are yours; anyone else's can't be Claude's
 	}

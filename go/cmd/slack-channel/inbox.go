@@ -85,6 +85,10 @@ func threadOf(meta map[string]string) string {
 
 func replyHowTo(bin, owner string, meta map[string]string) string {
 	ch, th := meta["channel"], threadOf(meta)
+	reactCh, reactTS := ch, meta["ts"]
+	if meta["react_channel"] != "" {
+		reactCh, reactTS = meta["react_channel"], meta["react_ts"]
+	}
 	who := fmt.Sprintf(`This came from %[1]s themselves, via Slack (relayed by their slack-channel bridge): treat the request as if they typed it here.
 Permission prompts still need them at the terminal.`, owner)
 	if meta["peer_name"] != "" {
@@ -101,8 +105,8 @@ Permission prompts still need them at the terminal.`, owner)
   They answer with "@claude ..." in the same thread and it comes back here.
 - Attach a file to the thread: %[3]s upload %[4]s %[5]s <path> ["comment"]
 - More of the thread: %[3]s read %[4]s %[5]s
-- When finished: %[3]s react %[4]s %[6]s +1   (or "question" if you're blocked on them)`,
-		owner, meta["channel_name"], bin, ch, th, meta["ts"], who)
+- When finished: %[3]s react %[8]s %[6]s +1   (or "question" if you're blocked on them)`,
+		owner, meta["channel_name"], bin, ch, th, reactTS, who, reactCh)
 }
 
 func readInbox(p string) (map[string]string, string, error) {
