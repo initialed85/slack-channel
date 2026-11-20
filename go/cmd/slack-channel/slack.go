@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"slices"
+	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -427,6 +429,9 @@ func (b *bridge) transcript(channel, ts, threadTS string, n int) (string, error)
 			}
 			cursor = next
 		}
+		// pages don't come back in time order on long threads (seen on a 400-reply thread: the newest
+		// page first), so sort by timestamp and drop the parent repeated on every page before taking the tail
+		msgs = sortDedupe(msgs)
 		if len(msgs) > n {
 			msgs = msgs[len(msgs)-n:]
 		}
@@ -550,4 +555,23 @@ func (b *bridge) readThread(channel, ts string, n int) (string, error) {
 		return b.transcript(channel, "9999999999.999999", ts, n)
 	}
 	return b.transcript(channel, ts, "", n)
+}
+
+// sortDedupe orders messages oldest-first by timestamp and drops duplicates (same ts).
+func sortDedupe(msgs []slack.Message) []slack.Message {
+	seen := map[string]bool{}
+	out := msgs[:0:0]
+	for _, m := range msgs {
+		if seen[m.Timestamp] {
+			continue
+		}
+		seen[m.Timestamp] = true
+		out = append(out, m)
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		a, _ := strconv.ParseFloat(out[i].Timestamp, 64)
+		b, _ := strconv.ParseFloat(out[j].Timestamp, 64)
+		return a < b
+	})
+	return out
 }

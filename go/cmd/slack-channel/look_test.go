@@ -41,3 +41,16 @@ func TestReplyHowToReactsOnOriginal(t *testing.T) {
 		t.Fatalf("finishing react should go on the original message:\n%s", out)
 	}
 }
+
+func TestSortDedupe(t *testing.T) {
+	in := []slack.Message{
+		{Msg: slack.Msg{Timestamp: "300.0", Text: "c"}},
+		{Msg: slack.Msg{Timestamp: "100.0", Text: "parent"}},
+		{Msg: slack.Msg{Timestamp: "200.0", Text: "b"}},
+		{Msg: slack.Msg{Timestamp: "100.0", Text: "parent"}},
+	}
+	out := sortDedupe(in)
+	if len(out) != 3 || out[0].Text != "parent" || out[2].Text != "c" {
+		t.Fatalf("got %+v", out)
+	}
+}
